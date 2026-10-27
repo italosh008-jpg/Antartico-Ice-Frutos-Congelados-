@@ -10,7 +10,11 @@ const BASE_IDS = {
   frambuesa: "https://images.unsplash.com/photo-1633073559427-d2f518f12d90",
   mango: "https://images.unsplash.com/photo-1519096845289-95806ee03a1a",
   anana: "https://images.unsplash.com/photo-1614963366795-973eb8748ebb",
-  mixFrutosRojos: "https://images.unsplash.com/photo-1513339960191-04d75ae2a34a",
+  mixPatagonico: "https://images.unsplash.com/photo-1580691155297-c6dfa3ca61c4",
+  // Recortada (rect) para excluir los arándanos de fondo del original: este
+  // mix es solo frambuesa + frutilla.
+  mixRojoPremium:
+    "https://images.unsplash.com/photo-1556048029-9c5edf1aa695?rect=150,0,1850,1100",
   aboutUs: "https://images.unsplash.com/photo-1708923345245-c972fd41c792",
   wholesale: "https://images.unsplash.com/photo-1500301802642-622bee979621",
   durazno: "https://images.unsplash.com/photo-1629828874514-c1e5103f2150",
@@ -23,5 +27,7 @@ export function img(
   width: number,
   quality = 80,
 ): string {
-  return `${BASE_IDS[id]}?w=${width}&q=${quality}&auto=format&fit=crop`;
+  const base = BASE_IDS[id];
+  const separator = base.includes("?") ? "&" : "?";
+  return `${base}${separator}w=${width}&q=${quality}&auto=format&fit=crop`;
 }

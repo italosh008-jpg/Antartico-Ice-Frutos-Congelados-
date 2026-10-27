@@ -12,6 +12,13 @@ export interface ProductPresentation {
   price: number | null;
 }
 
+export interface HealthBenefit {
+  /** Ej: "Rica en vitamina C" */
+  title: string;
+  /** Explicación breve, en lenguaje llano, sin hacer afirmaciones médicas. */
+  description: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -21,6 +28,8 @@ export interface Product {
   presentations: ProductPresentation[];
   /** Producto destacado en la home */
   featured?: boolean;
+  /** Beneficios nutricionales/de salud asociados a la fruta, para la ficha de producto. */
+  benefits?: HealthBenefit[];
 }
 
 export const categoryLabels: Record<ProductCategory, string> = {
