@@ -44,7 +44,10 @@ export function Header() {
     >
       <Container className="flex h-18 items-center justify-between py-3">
         <a href="#inicio" className="flex items-center gap-2.5 shrink-0">
-          <LogoMark className="h-11 w-11 shrink-0 drop-shadow-sm" />
+          <LogoMark
+            tone={scrolled ? "onLight" : "onDark"}
+            className="h-11 w-11 shrink-0 drop-shadow-sm"
+          />
           <span
             className={`font-display text-lg font-bold leading-none transition-colors ${
               scrolled ? "text-ice-950" : "text-white"
