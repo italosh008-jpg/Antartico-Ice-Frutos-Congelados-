@@ -46,16 +46,16 @@ export function Header() {
         <a href="#inicio" className="flex items-center gap-2.5 shrink-0">
           <LogoMark
             tone={scrolled ? "onLight" : "onDark"}
-            className="h-11 w-11 shrink-0 drop-shadow-sm"
+            className="h-11 w-9 shrink-0 drop-shadow-sm"
           />
           <span
-            className={`font-display text-lg font-bold leading-none transition-colors ${
+            className={`font-display text-lg font-extrabold leading-none transition-colors ${
               scrolled ? "text-ice-950" : "text-white"
             }`}
           >
-            Antártico
+            ANTÁRTICO
             <span
-              className={`block text-xs font-semibold tracking-[0.3em] ${
+              className={`block text-right text-xs font-semibold tracking-[0.06em] ${
                 scrolled ? "text-ice-500" : "text-ice-200"
               }`}
             >

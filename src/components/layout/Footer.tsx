@@ -20,9 +20,12 @@ export function Footer() {
       <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-4 lg:col-span-2">
           <a href="#inicio" className="flex items-center gap-2.5">
-            <LogoMark tone="onDark" className="h-11 w-11 shrink-0" />
-            <span className="font-display text-lg font-bold text-white">
-              Antártico Ice
+            <LogoMark tone="onDark" className="h-11 w-9 shrink-0" />
+            <span className="font-display text-lg font-extrabold leading-none text-white">
+              ANTÁRTICO
+              <span className="block text-right text-xs font-semibold tracking-[0.06em] text-ice-300">
+                ICE
+              </span>
             </span>
           </a>
           <p className="max-w-sm text-sm leading-relaxed text-ice-300">

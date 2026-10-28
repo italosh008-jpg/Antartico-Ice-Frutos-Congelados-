@@ -1,11 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <path d="M35 58 C28 65, 27 77, 32 86" fill="none" stroke="#267aa3" stroke-width="5.5" stroke-linecap="round"/>
-  <path d="M57 40 C71 40, 81 57, 81 73 C81 89, 70 98, 57 98 C44 98, 33 89, 33 73 C33 57, 43 40, 57 40 Z" fill="#267aa3"/>
-  <circle cx="45" cy="28" r="15" fill="#267aa3"/>
-  <path d="M30 27 A15 15 0 0 1 60 27 Z" fill="#20506d"/>
-  <path d="M31 27 C23 26, 16 29, 15 32 C21 32, 27 30, 32 29.5 Z" fill="#20506d"/>
-  <circle cx="41" cy="30" r="4.4" fill="#ffffff"/>
-  <circle cx="40.6" cy="30" r="2.1" fill="#0a1c2c"/>
-  <path d="M41 43 L34 39 L34 48 Z M41 43 L48 39 L48 48 Z" fill="#20506d"/>
-  <circle cx="41" cy="43.5" r="2.2" fill="#20506d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 106">
+  <defs>
+    <linearGradient id="g" x1="8" y1="4" x2="78" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3597c1"/>
+      <stop offset="1" stop-color="#216285"/>
+    </linearGradient>
+  </defs>
+  <path d="M14 56 C4 68, 5 88, 18 102" fill="none" stroke="url(#g)" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M54 46 C67 46, 78 60, 78 75 C78 92, 67 104, 54 104 C41 104, 30 92, 30 75 C30 60, 41 46, 54 46 Z" fill="url(#g)"/>
+  <path d="M18 46 L18 32 A24 24 0 0 1 66 32 L66 46 Z" fill="url(#g)"/>
+  <path d="M18 33 L7 38 L18 43 Z" fill="url(#g)"/>
+  <path d="M27 53 L17 46 L17 60 Z M27 53 L37 46 L37 60 Z" fill="url(#g)"/>
+  <circle cx="27" cy="53" r="2" fill="url(#g)"/>
+  <circle cx="42" cy="23" r="4.6" fill="#ffffff"/>
 </svg>
