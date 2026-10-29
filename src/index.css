@@ -20,6 +20,7 @@
   --color-frost-100: #eaf7fb;
 
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-arrival: cubic-bezier(0.16, 1, 0.3, 1);
 
   --animate-fade-up: fade-up 0.6s ease-out both;
   --animate-fade-in: fade-in 0.5s ease-out both;
@@ -77,5 +78,91 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--color-ice-300) transparent;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Órbita 3D "Suspendidos en el frío"
+   Los frutos giran alrededor de un núcleo central en espacio 3D real: los que
+   están adelante tapan al núcleo, los de atrás pasan por detrás. Es una
+   animación CSS (corre fuera del hilo principal) y se pausa cuando la sección
+   no está en pantalla o cuando el usuario apoya el mouse para elegir un fruto.
+--------------------------------------------------------------------------- */
+.orbit-stage {
+  perspective: 1100px;
+}
+
+.orbit-ring {
+  transform-style: preserve-3d;
+  /* El anillo se inclina para verse como órbita y no como una fila plana. */
+  transform: rotateX(calc(var(--orbit-tilt) * -1));
+  --orbit-tilt: 28deg;
+  --orbit-r: 130px;
+}
+
+@media (min-width: 640px) {
+  .orbit-ring {
+    --orbit-r: 195px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .orbit-ring {
+    --orbit-r: 270px;
+  }
+}
+
+/* El núcleo vive dentro del espacio 3D (para que los frutos pasen por delante
+   y por detrás) pero se endereza para mirar al usuario. */
+.orbit-core {
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) rotateX(var(--orbit-tilt));
+}
+
+.orbit-item {
+  transform-style: preserve-3d;
+  will-change: transform, filter;
+  animation: orbit var(--orbit-duration) linear infinite;
+  animation-delay: calc(var(--i) / var(--n) * var(--orbit-duration) * -1);
+}
+
+/* Cada fruto gira con el anillo, se endereza para mirar de frente y se
+   oscurece al pasar por detrás del núcleo: la profundidad se lee sola. */
+@keyframes orbit {
+  0% {
+    transform: rotateY(0deg) translateZ(var(--orbit-r)) rotateY(0deg)
+      rotateX(var(--orbit-tilt));
+    filter: brightness(1);
+  }
+  25% {
+    transform: rotateY(90deg) translateZ(var(--orbit-r)) rotateY(-90deg)
+      rotateX(var(--orbit-tilt));
+    filter: brightness(0.8);
+  }
+  50% {
+    transform: rotateY(180deg) translateZ(var(--orbit-r)) rotateY(-180deg)
+      rotateX(var(--orbit-tilt));
+    filter: brightness(0.5);
+  }
+  75% {
+    transform: rotateY(270deg) translateZ(var(--orbit-r)) rotateY(-270deg)
+      rotateX(var(--orbit-tilt));
+    filter: brightness(0.8);
+  }
+  100% {
+    transform: rotateY(360deg) translateZ(var(--orbit-r)) rotateY(-360deg)
+      rotateX(var(--orbit-tilt));
+    filter: brightness(1);
+  }
+}
+
+.orbit-stage[data-paused="true"] .orbit-item,
+.orbit-stage:focus-within .orbit-item {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .orbit-stage:hover .orbit-item {
+    animation-play-state: paused;
   }
 }

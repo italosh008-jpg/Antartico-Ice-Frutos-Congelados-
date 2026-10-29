@@ -2,6 +2,7 @@ import { CartDrawer } from "./components/layout/CartDrawer";
 import { Footer } from "./components/layout/Footer";
 import { Header } from "./components/layout/Header";
 import { WhatsAppFloatingButton } from "./components/layout/WhatsAppFloatingButton";
+import { FrozenOrbit } from "./components/home/FrozenOrbit";
 import { Hero } from "./components/home/Hero";
 import { WhyUs } from "./components/home/WhyUs";
 import { ProductDetailModal } from "./components/products/ProductDetailModal";
@@ -21,6 +22,7 @@ function App() {
         <main>
           <Hero />
           <WhyUs />
+          <FrozenOrbit />
           <ProductsSection />
           <AboutSection />
           <WholesaleSection />
