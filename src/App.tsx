@@ -3,6 +3,7 @@ import { Footer } from "./components/layout/Footer";
 import { Header } from "./components/layout/Header";
 import { WhatsAppFloatingButton } from "./components/layout/WhatsAppFloatingButton";
 import { FrozenOrbit } from "./components/home/FrozenOrbit";
+import { FruitFall } from "./components/home/FruitFall";
 import { Hero } from "./components/home/Hero";
 import { WhyUs } from "./components/home/WhyUs";
 import { ProductDetailModal } from "./components/products/ProductDetailModal";
@@ -21,6 +22,7 @@ function App() {
         <Header />
         <main>
           <Hero />
+          <FruitFall />
           <WhyUs />
           <FrozenOrbit />
           <ProductsSection />
