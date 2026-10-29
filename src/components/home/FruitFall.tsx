@@ -1,168 +1,132 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getProductById } from "../../data/products";
-import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { useEffect, useRef, useState } from "react";
+import { Container } from "../ui/Container";
+import { FRUIT_SHAPES, type FruitShapeName } from "./FruitShapes";
 
 /**
- * Escena de entrada: los frutos caen dentro del bowl a medida que el usuario
- * baja. El scroll es el que manda — no hay reproducción automática — así que
- * la caída avanza, se frena o se devuelve exactamente al ritmo de la persona.
+ * Escena de entrada: una lluvia de frutas que cae dentro del bowl.
  *
- * La escena queda fija (sticky) mientras dura la caída y se va sola cuando
- * los frutos ya están en el bowl, justo al llegar a "Por qué elegirnos".
+ * La caída se dispara sola cuando la sección entra en pantalla (una vez) y
+ * de ahí en más el bowl queda servido. No sigue al scroll: pasás por ahí y
+ * ocurre.
+ *
+ * Todo el movimiento es una animación CSS — corre fuera del hilo principal —
+ * y la posición de reposo de cada fruta es su posición de maquetado, así que
+ * con `prefers-reduced-motion` el bowl simplemente aparece lleno, sin lógica
+ * extra.
  */
 
-/**
- * Cada fruto entra desde un lado, en su momento, y descansa en el bowl.
- * `rest` es la altura final dentro del bowl (más negativo = más al fondo) y
- * `z` ordena el montón: los de adelante tapan a los del fondo.
- */
-const FALLERS = [
-  { id: "frutilla", fromX: -0.62, toX: -0.28, scale: 1, at: 0.0, spin: -26, rest: -4, z: 6 },
-  { id: "arandanos", fromX: 0.5, toX: 0.24, scale: 0.86, at: 0.06, spin: 20, rest: -16, z: 4 },
-  { id: "frambuesa", fromX: -0.2, toX: -0.06, scale: 0.94, at: 0.12, spin: 28, rest: -30, z: 2 },
-  { id: "mango", fromX: 0.7, toX: 0.46, scale: 0.9, at: 0.18, spin: -18, rest: 2, z: 7 },
-  { id: "anana", fromX: -0.46, toX: -0.46, scale: 0.84, at: 0.24, spin: 24, rest: 4, z: 8 },
-  { id: "durazno", fromX: 0.14, toX: 0.12, scale: 0.88, at: 0.3, spin: -22, rest: -34, z: 1 },
-  { id: "mix-patagonico", fromX: -0.74, toX: 0.04, scale: 0.96, at: 0.37, spin: 16, rest: 6, z: 9 },
-  { id: "mix-rojo-premium", fromX: 0.34, toX: -0.2, scale: 0.82, at: 0.44, spin: -14, rest: -22, z: 3 },
-] as const;
+/** PRNG con semilla fija: el montón es siempre el mismo, pero no parece hecho a mano. */
+function mulberry32(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-/** Tramo de la caída de cada fruto dentro del recorrido total. */
-const FALL_SPAN = 0.45;
+const SHAPE_POOL: FruitShapeName[] = [
+  "frutilla",
+  "arandano",
+  "frambuesa",
+  "frutilla",
+  "arandano",
+  "frambuesa",
+  "mango",
+  "anana",
+  "durazno",
+  "arandano",
+  "frambuesa",
+  "lima",
+];
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
+interface Piece {
+  shape: FruitShapeName;
+  /** Posición de reposo, en % de la caja del bowl. */
+  x: number;
+  y: number;
+  size: number;
+  rotation: number;
+  startRotation: number;
+  driftX: number;
+  delay: number;
+  duration: number;
+  z: number;
+}
+
+/** Arma el montón: tres hileras, más alto en el centro, como fruta apilada. */
+function buildHeap(): Piece[] {
+  const random = mulberry32(28102026);
+  const rows = [
+    { count: 12, y: 16, size: 9, spread: 72 },
+    { count: 12, y: 28, size: 11, spread: 66 },
+    { count: 9, y: 40, size: 12.5, spread: 56 },
+  ];
+
+  const pieces: Piece[] = [];
+  let index = 0;
+
+  rows.forEach((row, rowIndex) => {
+    for (let i = 0; i < row.count; i += 1) {
+      const t = row.count === 1 ? 0.5 : i / (row.count - 1);
+      const x = 50 + (t - 0.5) * row.spread + (random() - 0.5) * 5;
+      // El montón es más alto en el centro.
+      const mound = 1 - Math.min(1, Math.abs(x - 50) / (row.spread / 2));
+      const y = row.y - mound * 5 + (random() - 0.5) * 3;
+
+      pieces.push({
+        shape: SHAPE_POOL[index % SHAPE_POOL.length],
+        x,
+        y,
+        size: row.size * (0.85 + random() * 0.35),
+        rotation: (random() - 0.5) * 54,
+        startRotation: (random() - 0.5) * 420,
+        driftX: (random() - 0.5) * 90,
+        // Retardo repartido al azar: lluvia continua, no tandas.
+        delay: random() * 0.85,
+        duration: 0.95 + random() * 0.3,
+        z: rowIndex * 10 + i,
+      });
+      index += 1;
+    }
+  });
+
+  return pieces;
+}
+
+const PIECES = buildHeap();
 
 export function FruitFall() {
-  const trackRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
-  const fruitRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const reducedMotion = useReducedMotion();
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene) return;
 
-    const observer = new ResizeObserver(([entry]) => {
-      setSize({
-        w: entry.contentRect.width,
-        h: entry.contentRect.height,
-      });
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setPlaying(true);
+        observer.disconnect(); // ocurre una sola vez
+      },
+      { threshold: 0.3 },
+    );
     observer.observe(scene);
     return () => observer.disconnect();
   }, []);
 
-  const geometry = useMemo(() => {
-    const bowlWidth = Math.min(430, size.w * 0.74);
-    return {
-      bowlWidth,
-      bowlCenterX: size.w / 2,
-      // Altura de la boca del bowl: los frutos descansan justo debajo.
-      rimY: size.h * 0.62,
-      fruitBase: Math.max(40, bowlWidth * 0.19),
-      spread: size.w * 0.5,
-    };
-  }, [size]);
-
-  /** Escribe la posición de cada fruto para un avance `p` de 0 a 1. */
-  const applyProgress = useCallback(
-    (p: number) => {
-      const { bowlCenterX, rimY, fruitBase, spread, bowlWidth } = geometry;
-      if (!bowlWidth) return;
-
-      FALLERS.forEach((faller, index) => {
-        const node = fruitRefs.current[index];
-        if (!node) return;
-
-        const local = clamp((p - faller.at) / FALL_SPAN, 0, 1);
-        // La caída acelera, como cualquier cosa que cae de verdad.
-        const fall = local * local;
-
-        const startX = bowlCenterX + faller.fromX * spread;
-        const endX = bowlCenterX + faller.toX * (bowlWidth * 0.42);
-        // Apenas por encima del borde: si arrancan muy alto, el primer tramo
-        // del scroll no muestra nada.
-        const startY = -fruitBase - 24 - index * 18;
-        // Quedan hundidos en la boca del bowl, no apoyados sobre el borde:
-        // la pared delantera arranca cerca de rimY + 0.6 · tamaño del fruto.
-        const endY = rimY + fruitBase * 0.6 + faller.rest * (fruitBase / 70);
-
-        const x = startX + (endX - startX) * fall;
-        const y = startY + (endY - startY) * fall;
-        const rotation = faller.spin * (1 - fall);
-
-        // Pequeño achatamiento al tocar el fondo.
-        const settle = clamp((local - 0.86) / 0.14, 0, 1);
-        const squash = 1 + 0.07 * Math.sin(settle * Math.PI);
-
-        node.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg) scaleY(${
-          2 - squash
-        }) scaleX(${squash})`;
-      });
-    },
-    [geometry],
-  );
-
-  useEffect(() => {
-    if (!geometry.bowlWidth) return;
-
-    // Sin movimiento: los frutos ya están servidos en el bowl.
-    if (reducedMotion) {
-      applyProgress(1);
-      return;
-    }
-
-    let raf = 0;
-    const update = () => {
-      const track = trackRef.current;
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const distance = rect.height - window.innerHeight;
-      applyProgress(distance <= 0 ? 1 : clamp(-rect.top / distance, 0, 1));
-    };
-
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [applyProgress, geometry.bowlWidth, reducedMotion]);
-
   return (
-    <section
-      ref={trackRef}
-      aria-label="Frutos cayendo en el bowl"
-      className={
-        reducedMotion ? "relative bg-white py-10" : "relative h-[170vh] bg-white"
-      }
-    >
-      {/* Sin movimiento no hay nada que recorrer: el bowl ya está servido y la
-          sección ocupa lo que necesita, no 170vh de scroll vacío. */}
+    <section className="relative overflow-hidden bg-white py-16 sm:py-20">
       <div
-        ref={sceneRef}
-        className={
-          reducedMotion
-            ? "relative h-[75vh] overflow-hidden"
-            : "sticky top-0 h-screen overflow-hidden"
-        }
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-[58%] h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ice-200/40 blur-3xl"
-        />
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ice-200/40 blur-3xl"
+      />
 
-        {/* El título va por delante: los frutos le pasan por detrás y el
-            texto nunca queda tapado. */}
-        <div className="relative z-20 px-5 pt-28 text-center sm:pt-[10%]">
-          <h2 className="text-balance font-display text-2xl font-bold tracking-tight text-ice-950 sm:text-4xl">
+      <Container className="relative">
+        {/* El título va por delante: la fruta le pasa por detrás. */}
+        <div className="relative z-20 mx-auto max-w-xl text-center">
+          <h2 className="text-balance font-display text-3xl font-bold tracking-tight text-ice-950 sm:text-4xl">
             Cosechados en su punto justo
           </h2>
           <p className="mx-auto mt-3 max-w-md text-balance text-sm leading-relaxed text-ice-800/70 sm:text-base">
@@ -171,69 +135,54 @@ export function FruitFall() {
           </p>
         </div>
 
-        {/* Interior del bowl: los frutos se apoyan sobre esta cara. */}
-        <BowlBack geometry={geometry} />
+        <div
+          ref={sceneRef}
+          data-playing={playing}
+          className="fruit-scene relative isolate z-0 mx-auto mt-10 w-full max-w-[460px]"
+        >
+          {/* Caja del bowl: todo se posiciona en % de este rectángulo 2:1. */}
+          <div className="relative aspect-2/1 w-full">
+            <BowlBack />
 
-        {FALLERS.map((faller, index) => {
-          const product = getProductById(faller.id);
-          if (!product) return null;
-          const diameter = geometry.fruitBase * faller.scale;
+            {PIECES.map((piece, index) => {
+              const Shape = FRUIT_SHAPES[piece.shape];
+              return (
+                <div
+                  key={index}
+                  className="fruit-piece absolute"
+                  style={
+                    {
+                      left: `calc(${piece.x}% - ${piece.size / 2}%)`,
+                      top: `calc(${piece.y}% - ${piece.size}%)`,
+                      width: `${piece.size}%`,
+                      zIndex: piece.z,
+                      "--r0": `${piece.startRotation}deg`,
+                      "--r1": `${piece.rotation}deg`,
+                      "--dx": `${piece.driftX}px`,
+                      "--delay": `${piece.delay}s`,
+                      "--dur": `${piece.duration}s`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <Shape className="h-auto w-full drop-shadow-sm" />
+                </div>
+              );
+            })}
 
-          return (
-            <div
-              key={faller.id}
-              ref={(node) => {
-                fruitRefs.current[index] = node;
-              }}
-              className="pointer-events-none absolute left-0 top-0 -ml-[var(--r)] -mt-[var(--r)] rounded-full ring-1 ring-ice-900/10"
-              style={
-                {
-                  width: diameter,
-                  height: diameter,
-                  "--r": `${diameter / 2}px`,
-                  zIndex: faller.z,
-                  willChange: "transform",
-                } as React.CSSProperties
-              }
-            >
-              <img
-                src={product.image}
-                alt=""
-                loading="lazy"
-                className="h-full w-full rounded-full object-cover shadow-lg shadow-ice-900/20"
-              />
-            </div>
-          );
-        })}
-
-        {/* Pared delantera: tapa la parte baja de los frutos, así quedan
-            realmente adentro del bowl y no apoyados encima. */}
-        <BowlFront geometry={geometry} />
-      </div>
+            <BowlFront />
+          </div>
+        </div>
+      </Container>
     </section>
   );
 }
 
-type Geometry = {
-  bowlWidth: number;
-  bowlCenterX: number;
-  rimY: number;
-  fruitBase: number;
-  spread: number;
-};
-
-function BowlBack({ geometry }: { geometry: Geometry }) {
-  const { bowlWidth, rimY } = geometry;
-  if (!bowlWidth) return null;
-
+function BowlBack() {
   return (
     <svg
       aria-hidden
       viewBox="0 0 400 200"
-      width={bowlWidth}
-      height={bowlWidth * 0.5}
-      className="absolute left-1/2 -translate-x-1/2"
-      style={{ top: rimY - bowlWidth * 0.5 * 0.12 }}
+      className="absolute inset-0 h-full w-full"
     >
       <defs>
         <linearGradient id="bowl-inside" x1="0" y1="0" x2="0" y2="1">
@@ -246,18 +195,12 @@ function BowlBack({ geometry }: { geometry: Geometry }) {
   );
 }
 
-function BowlFront({ geometry }: { geometry: Geometry }) {
-  const { bowlWidth, rimY } = geometry;
-  if (!bowlWidth) return null;
-
+function BowlFront() {
   return (
     <svg
       aria-hidden
       viewBox="0 0 400 200"
-      width={bowlWidth}
-      height={bowlWidth * 0.5}
-      className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2"
-      style={{ top: rimY - bowlWidth * 0.5 * 0.12 }}
+      className="pointer-events-none absolute inset-0 z-50 h-full w-full"
     >
       <defs>
         <linearGradient id="bowl-body" x1="0" y1="0" x2="0.3" y2="1">
@@ -267,12 +210,10 @@ function BowlFront({ geometry }: { geometry: Geometry }) {
         </linearGradient>
       </defs>
 
-      {/* cuerpo del bowl, desde la boca hacia abajo */}
       <path
         d="M4 48 C4 128, 92 186, 200 186 C308 186, 396 128, 396 48 C396 74, 308 94, 200 94 C92 94, 4 74, 4 48 Z"
         fill="url(#bowl-body)"
       />
-      {/* borde de la boca */}
       <ellipse
         cx="200"
         cy="48"
@@ -283,7 +224,6 @@ function BowlFront({ geometry }: { geometry: Geometry }) {
         strokeOpacity="0.75"
         strokeWidth="4"
       />
-      {/* brillo */}
       <path
         d="M52 92 C72 134, 118 162, 170 172"
         fill="none"

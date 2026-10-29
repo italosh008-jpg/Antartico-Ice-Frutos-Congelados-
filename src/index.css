@@ -82,6 +82,49 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Lluvia de frutas dentro del bowl
+
+   Cada fruta descansa en su posición de maquetado; la animación solo la trae
+   desde arriba. Por eso, si el sistema pide menos movimiento, basta con
+   apagar la animación: el bowl aparece servido, sin estados intermedios.
+--------------------------------------------------------------------------- */
+.fruit-piece {
+  animation: fruit-drop var(--dur) var(--delay) both paused;
+}
+
+.fruit-scene[data-playing="true"] .fruit-piece {
+  animation-play-state: running;
+}
+
+@keyframes fruit-drop {
+  0% {
+    /* Arranca apenas por encima del recuadro: si sale de mucho más arriba,
+       pasa casi todo el vuelo recortada y se ven de a una. */
+    transform: translate(var(--dx), -52vh) rotate(var(--r0));
+    /* acelera al caer, como cae algo de verdad */
+    animation-timing-function: cubic-bezier(0.45, 0, 0.8, 0.55);
+  }
+  70% {
+    transform: translate(0, 0) rotate(var(--r1));
+    animation-timing-function: cubic-bezier(0.25, 0, 0.35, 1);
+  }
+  82% {
+    /* rebote corto al tocar el fondo */
+    transform: translate(0, -16%) rotate(var(--r1));
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55);
+  }
+  100% {
+    transform: translate(0, 0) rotate(var(--r1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fruit-piece {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Órbita 3D "Suspendidos en el frío"
    Los frutos giran alrededor de un núcleo central en espacio 3D real: los que
    están adelante tapan al núcleo, los de atrás pasan por detrás. Es una
