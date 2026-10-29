@@ -1,19 +1,24 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
 export type ButtonSize = "md" | "lg";
 
+/**
+ * El movimiento (hundido al apretar, levante al pasar el mouse, reflejo) vive
+ * en la clase `.btn` de index.css, donde se puede usar media queries reales
+ * para no dispararlo en pantallas táctiles.
+ */
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ice-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+  "btn inline-flex items-center justify-center gap-2 rounded-full font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ice-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-ice-600 text-white shadow-lg shadow-ice-600/25 hover:bg-ice-700 hover:shadow-xl hover:shadow-ice-600/30 active:scale-[0.98]",
+    "bg-ice-600 text-white shadow-lg shadow-ice-600/25 hover:bg-ice-700 hover:shadow-xl hover:shadow-ice-600/35",
   secondary:
-    "bg-white text-ice-800 shadow-lg shadow-ice-900/10 hover:bg-ice-50 active:scale-[0.98]",
+    "bg-white text-ice-800 shadow-lg shadow-ice-900/10 hover:bg-ice-50 hover:shadow-xl hover:shadow-ice-900/15",
   outline:
-    "border-2 border-ice-200 text-ice-800 hover:border-ice-400 hover:bg-ice-50 active:scale-[0.98]",
-  ghost: "text-ice-700 hover:bg-ice-50 active:scale-[0.98]",
+    "border-2 border-ice-200 text-ice-800 hover:border-ice-400 hover:bg-ice-50",
+  ghost: "text-ice-700 hover:bg-ice-50",
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -29,30 +34,54 @@ export function buttonClasses(
   return `${base} ${variants[variant]} ${sizes[size]} ${className}`;
 }
 
+/** El reflejo solo va en los botones principales, donde se ve. */
+function Sheen({ variant }: { variant: ButtonVariant }) {
+  if (variant !== "primary") return null;
+  return <span aria-hidden className="btn-sheen" />;
+}
+
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  children?: ReactNode;
 }
 
 export function Button({
   variant = "primary",
   size = "md",
   className = "",
+  children,
   ...rest
 }: ButtonProps) {
-  return <button className={buttonClasses(variant, size, className)} {...rest} />;
+  return (
+    <button className={buttonClasses(variant, size, className)} {...rest}>
+      <Sheen variant={variant} />
+      <span className="relative inline-flex items-center justify-center gap-2">
+        {children}
+      </span>
+    </button>
+  );
 }
 
 interface ButtonLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  children?: ReactNode;
 }
 
 export function ButtonLink({
   variant = "primary",
   size = "md",
   className = "",
+  children,
   ...rest
 }: ButtonLinkProps) {
-  return <a className={buttonClasses(variant, size, className)} {...rest} />;
+  return (
+    <a className={buttonClasses(variant, size, className)} {...rest}>
+      <Sheen variant={variant} />
+      <span className="relative inline-flex items-center justify-center gap-2">
+        {children}
+      </span>
+    </a>
+  );
 }

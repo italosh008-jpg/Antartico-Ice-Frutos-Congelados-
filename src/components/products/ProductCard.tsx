@@ -22,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
           type="button"
           onClick={() => openProduct(product.id)}
           aria-label={`Ver detalle de ${product.name}`}
-          className="relative aspect-4/3 overflow-hidden rounded-t-3xl bg-ice-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ice-400 focus-visible:ring-offset-2"
+          className="press-img relative aspect-4/3 overflow-hidden rounded-t-3xl bg-ice-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ice-400 focus-visible:ring-offset-2"
           style={tiltEnabled ? { transform: "translateZ(26px)" } : undefined}
         >
           <img

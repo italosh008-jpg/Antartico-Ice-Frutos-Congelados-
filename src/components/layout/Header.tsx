@@ -85,7 +85,7 @@ export function Header() {
             type="button"
             onClick={openCart}
             aria-label="Abrir carrito de compras"
-            className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+            className={`tap relative flex h-10 w-10 items-center justify-center rounded-full ${
               scrolled
                 ? "text-ice-800 hover:bg-ice-50"
                 : "text-white hover:bg-white/10"
@@ -115,7 +115,7 @@ export function Header() {
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Abrir menú"
-            className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors lg:hidden ${
+            className={`tap flex h-10 w-10 items-center justify-center rounded-full lg:hidden ${
               scrolled
                 ? "text-ice-800 hover:bg-ice-50"
                 : "text-white hover:bg-white/10"

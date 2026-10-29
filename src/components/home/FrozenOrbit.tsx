@@ -116,7 +116,7 @@ function StaticGrid({ onSelect }: { onSelect: (id: string) => void }) {
           type="button"
           onClick={() => onSelect(product.id)}
           aria-label={`Ver ficha de ${product.name}`}
-          className="group flex flex-col items-center gap-2 focus-visible:outline-none"
+          className="tap group flex flex-col items-center gap-2 focus-visible:outline-none"
         >
           <img
             src={product.image}

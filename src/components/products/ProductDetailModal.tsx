@@ -116,7 +116,7 @@ export function ProductDetailModal() {
             type="button"
             onClick={closeProduct}
             aria-label="Cerrar ficha de producto"
-            className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ice-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-ice-900"
+            className="tap absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-ice-700 shadow-md backdrop-blur-sm hover:bg-white hover:text-ice-900"
           >
             <X className="h-5 w-5" />
           </button>

@@ -24,6 +24,18 @@
 
   --animate-fade-up: fade-up 0.6s ease-out both;
   --animate-fade-in: fade-in 0.5s ease-out both;
+  --animate-check-pop: check-pop 0.32s var(--ease-out-strong) both;
+
+  @keyframes check-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 
   @keyframes fade-up {
     from {
@@ -78,6 +90,197 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--color-ice-300) transparent;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Botones: respuesta física
+
+   Un botón se toca muchas veces por día, así que la regla no es "animación
+   vistosa" sino respuesta inmediata: se hunde apenas al apretarlo (en el
+   momento del toque, no al soltar) y se levanta al pasar el mouse. Todo lo
+   que sea adorno queda detrás de un puntero fino, porque en touch el :hover
+   se queda pegado después del toque.
+--------------------------------------------------------------------------- */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 140ms var(--ease-out-strong),
+    box-shadow 220ms var(--ease-out-strong),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+/* El hundido manda sobre el levante del hover. */
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn svg,
+.btn .btn-arrow {
+  transition: transform 200ms var(--ease-out-strong);
+}
+
+/* Reflejo que barre el botón: solo en los principales y con mouse. */
+.btn-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(-110%);
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 255 255 / 0.28) 50%,
+    transparent 80%
+  );
+  transition: transform 640ms var(--ease-out-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn:hover .btn-sheen {
+    transform: translateX(110%);
+  }
+
+  /* La flecha se adelanta: anticipa hacia dónde lleva el botón. */
+  .btn:hover .btn-arrow {
+    transform: translateX(3px);
+  }
+}
+
+/* Controles chicos (pastillas, +/-): solo el hundido, sin adornos. */
+.tap {
+  transition:
+    transform 120ms var(--ease-out-strong),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.tap:active {
+  transform: scale(0.93);
+}
+
+/* Para filas anchas (acordeón, botones de ancho completo): el mismo gesto,
+   pero apenas insinuado, porque encoger una fila entera se nota mal. */
+.tap-soft {
+  transition:
+    transform 120ms var(--ease-out-strong),
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.tap-soft:active {
+  transform: scale(0.99);
+}
+
+/* La foto de la tarjeta se hunde apenas al apretarla: el zoom del hover sube a
+   1.10 y el toque la baja a 1.05, así el click se siente en la imagen misma
+   (no en el contenedor, que está tomado por la inclinación 3D). */
+.press-img img {
+  transition: transform 500ms var(--ease-out-strong);
+}
+
+.press-img:active img {
+  transform: scale(1.05);
+  transition-duration: 140ms;
+}
+
+/* ---------------------------------------------------------------------------
+   Botón flotante de WhatsApp
+   Es el acceso directo al pedido, así que se mueve solo: un anillo se abre
+   cada tanto para que la mirada lo encuentre, y al acercar el mouse aparece
+   la etiqueta. Nada de esto cambia el tamaño del botón (nada de animar
+   padding o ancho): solo transform y opacidad.
+--------------------------------------------------------------------------- */
+.wa-fab {
+  transition:
+    transform 160ms var(--ease-out-strong),
+    box-shadow 240ms var(--ease-out-strong);
+}
+
+.wa-fab:active {
+  transform: scale(0.94);
+}
+
+.wa-label {
+  pointer-events: none;
+  transform: translateX(6px);
+  opacity: 0;
+  transition:
+    transform 220ms var(--ease-out-strong),
+    opacity 180ms ease;
+}
+
+.wa-pulse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 9999px;
+  border: 2px solid #25d366;
+  animation: wa-pulse 2.6s var(--ease-out-strong) infinite;
+}
+
+@keyframes wa-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  55%,
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wa-fab:hover {
+    transform: translateY(-2px);
+  }
+
+  .wa-fab:active {
+    transform: scale(0.94);
+  }
+
+  .wa-fab:hover .wa-label {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* Si ya lo está mirando, el anillo dejó de hacer falta. */
+  .wa-fab:hover .wa-pulse {
+    opacity: 0;
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .tap:hover,
+  .wa-fab:hover {
+    transform: none;
+  }
+
+  .btn-sheen,
+  .wa-pulse {
+    display: none;
+  }
+
+  .press-img:active img {
+    transform: none;
+  }
+
+  .wa-label {
+    transform: none;
   }
 }
 
@@ -197,6 +400,16 @@
       rotateX(var(--orbit-tilt));
     filter: brightness(1);
   }
+}
+
+/* El fruto está animado por el keyframe, así que el toque se siente en la
+   foto: es lo único que puede moverse sin pelear con la órbita. */
+.orbit-item img {
+  transition: transform 180ms var(--ease-out-strong);
+}
+
+.orbit-item:active img {
+  transform: scale(0.9);
 }
 
 .orbit-stage[data-paused="true"] .orbit-item,

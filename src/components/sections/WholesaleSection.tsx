@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { img } from "../../data/images";
 import { wholesaleWhatsAppUrl } from "../../utils/whatsapp";
-import { Button } from "../ui/Button";
+import { ButtonLink } from "../ui/Button";
 import { Container } from "../ui/Container";
 
 const segments = [
@@ -49,12 +49,17 @@ export function WholesaleSection() {
             necesitás y te acercamos una cotización a medida.
           </p>
 
-          <a href={wholesaleWhatsAppUrl()} target="_blank" rel="noopener noreferrer">
-            <Button variant="primary" size="lg">
-              <MessageCircle className="h-4 w-4" />
-              Solicitar cotización mayorista
-            </Button>
-          </a>
+          <ButtonLink
+            href={wholesaleWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="primary"
+            size="lg"
+            className="self-start"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Solicitar cotización mayorista
+          </ButtonLink>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">

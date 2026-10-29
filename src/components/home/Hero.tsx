@@ -1,7 +1,7 @@
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { img } from "../../data/images";
 import { generalWhatsAppUrl } from "../../utils/whatsapp";
-import { Button, ButtonLink } from "../ui/Button";
+import { ButtonLink } from "../ui/Button";
 import { Container } from "../ui/Container";
 
 export function Hero() {
@@ -39,18 +39,18 @@ export function Hero() {
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="#productos" variant="primary" size="lg">
               Ver productos
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="btn-arrow h-4 w-4" />
             </ButtonLink>
-            <a
+            <ButtonLink
               href={generalWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
+              variant="secondary"
+              size="lg"
             >
-              <Button variant="secondary" size="lg" className="w-full">
-                <MessageCircle className="h-4 w-4" />
-                Pedir por WhatsApp
-              </Button>
-            </a>
+              <MessageCircle className="h-4 w-4" />
+              Pedir por WhatsApp
+            </ButtonLink>
           </div>
         </div>
       </Container>

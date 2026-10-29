@@ -43,9 +43,9 @@ export function ProductFilters({
             key={category}
             type="button"
             onClick={() => onCategoryChange(category)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`tap rounded-full px-4 py-2 text-sm font-semibold ${
               activeCategory === category
-                ? "bg-ice-600 text-white"
+                ? "bg-ice-600 text-white shadow-md shadow-ice-600/25"
                 : "bg-ice-50 text-ice-700 hover:bg-ice-100"
             }`}
           >

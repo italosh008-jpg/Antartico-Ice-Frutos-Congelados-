@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { formatPrice } from "../../utils/format";
 import { cartWhatsAppUrl } from "../../utils/whatsapp";
-import { Button } from "../ui/Button";
+import { ButtonLink } from "../ui/Button";
 
 export function CartDrawer() {
   const {
@@ -58,7 +58,7 @@ export function CartDrawer() {
             type="button"
             onClick={closeCart}
             aria-label="Cerrar carrito"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ice-600 transition-colors hover:bg-ice-50"
+            className="tap flex h-9 w-9 items-center justify-center rounded-full text-ice-600 hover:bg-ice-50"
           >
             <X className="h-5 w-5" />
           </button>
@@ -100,7 +100,7 @@ export function CartDrawer() {
                           removeItem(item.productId, item.presentationLabel)
                         }
                         aria-label={`Quitar ${item.product.name}`}
-                        className="shrink-0 text-ice-300 transition-colors hover:text-red-500"
+                        className="tap shrink-0 text-ice-300 hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -121,7 +121,7 @@ export function CartDrawer() {
                             )
                           }
                           aria-label="Restar cantidad"
-                          className="flex h-6 w-6 items-center justify-center rounded-full text-ice-700 transition-colors hover:bg-ice-50"
+                          className="tap flex h-6 w-6 items-center justify-center rounded-full text-ice-700 hover:bg-ice-50"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
@@ -138,7 +138,7 @@ export function CartDrawer() {
                             )
                           }
                           aria-label="Sumar cantidad"
-                          className="flex h-6 w-6 items-center justify-center rounded-full text-ice-700 transition-colors hover:bg-ice-50"
+                          className="tap flex h-6 w-6 items-center justify-center rounded-full text-ice-700 hover:bg-ice-50"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
@@ -172,20 +172,20 @@ export function CartDrawer() {
                 WhatsApp.
               </p>
 
-              <a
+              <ButtonLink
                 href={cartWhatsAppUrl(lineDetails)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block"
+                variant="primary"
+                size="lg"
+                className="w-full"
               >
-                <Button variant="primary" size="lg" className="w-full">
-                  Enviar pedido por WhatsApp
-                </Button>
-              </a>
+                Enviar pedido por WhatsApp
+              </ButtonLink>
               <button
                 type="button"
                 onClick={clearCart}
-                className="mt-2 w-full rounded-full py-2 text-xs font-semibold text-ice-500 transition-colors hover:text-red-500"
+                className="tap-soft mt-2 w-full rounded-full py-2 text-xs font-semibold text-ice-500 hover:text-red-500"
               >
                 Vaciar carrito
               </button>

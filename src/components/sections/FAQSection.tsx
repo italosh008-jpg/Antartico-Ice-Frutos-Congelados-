@@ -51,7 +51,7 @@ export function FAQSection() {
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-ice-50/60"
+                  className="tap-soft flex w-full items-center justify-between gap-4 px-6 py-5 text-left hover:bg-ice-50/60"
                 >
                   <span className="text-sm font-semibold text-ice-950 sm:text-base">
                     {faq.question}

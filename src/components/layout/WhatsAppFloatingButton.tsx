@@ -9,12 +9,24 @@ export function WhatsAppFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Escribinos por WhatsApp al ${siteConfig.whatsappNumber}`}
-      className="group fixed bottom-5 right-5 z-40 flex items-center gap-3 rounded-full bg-[#25D366] py-3.5 pl-3.5 pr-3.5 text-white shadow-xl shadow-[#25D366]/30 transition-all duration-300 hover:pr-5 sm:bottom-7 sm:right-7"
+      className="wa-fab fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-[#25D366]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:bottom-7 sm:right-7"
     >
-      <MessageCircle className="h-6 w-6 shrink-0" strokeWidth={2} fill="currentColor" />
-      <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-semibold transition-all duration-300 group-hover:max-w-xs">
+      {/* Anillo que se expande: llama la atención sin mover el botón. */}
+      <span aria-hidden className="wa-pulse" />
+
+      {/* La etiqueta vive fuera del círculo, así aparecer no reacomoda nada. */}
+      <span
+        aria-hidden
+        className="wa-label absolute right-full mr-3 whitespace-nowrap rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-ice-950 shadow-lg shadow-ice-900/10"
+      >
         Hacé tu pedido
       </span>
+
+      <MessageCircle
+        className="h-6 w-6 shrink-0"
+        strokeWidth={2}
+        fill="currentColor"
+      />
     </a>
   );
 }
